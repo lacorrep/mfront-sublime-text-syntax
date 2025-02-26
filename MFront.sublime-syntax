@@ -1,0 +1,158 @@
+%YAML 1.2
+---
+# https://github.com/GuilhermeFreire/mfront_syntax_highlighting
+# See http://www.sublimetext.com/docs/3/syntax.html
+name: MFront
+file_extensions:
+  - mfront
+scope: source.mfront
+# extends: Packages/C++/C++.sublime-syntax
+variables:
+  DSL_types: 'Default|DefaultCZM|DefaultFiniteStrain|DefaultGenericBehaviour|DefaultModel|Implicit|ImplicitCZM|ImplicitFiniteStrain|ImplicitGenericBehaviour|ImplicitModel|ImplicitII|IsotropicMisesCreep|IsotropicMisesPlasticFlow|IsotropicPlasticMisesFlow|IsotropicStrainHardeningMisesCreep|MaterialLaw|MaterialProperty|Model|MultipleIsotropicMisesFlows|RungeKutta|RungeKuttaFiniteStrain|RungeKuttaGenericBehaviour|RungeKuttaModel'
+
+  # From https://thelfer.github.io/tfel/web/**********-keywords.html
+  all_at_keywords: 'APosterioriTimeStepScalingFactor|APrioriTimeStepScalingFactor|AdditionalConvergenceChecks|AdditionalTangentOperatorBlock|AdditionalTangentOperatorBlocks|Algorithm|Author|AuxiliaryStateVar|AuxiliaryStateVariable|AxialGrowth|Behaviour|Bounds|Brick|Coef|CompareToNumericalJacobian|ComputeCohesiveForce|ComputeCohesizeForce|ComputeFinalCohesiveForce|ComputeFinalCohesizeForce|ComputeFinalStress|ComputeFinalThermodynamicForces|ComputeStiffnessTensor|ComputeStress|ComputeStressFreeExpansion|ComputeThermalExpansion|ComputeThermodynamicForces|ComputedVar|Constant|ConstantMaterialProperty|CrystalStructure|DSL|Date|Derivative|Description|DislocationsMeanFreePathInteractionMatrix|DissipatedEnergy|Domain|Domains|ElasticMaterialProperties|Epsilon|ExternalStateVar|ExternalStateVariable|FlowRule|Flux|Function|GlidingSystem|GlidingSystems|Gradient|HillTensor|Import|Includes|InitJacobian|InitJacobianInvert|InitLocalVariables|InitLocalVars|Initialize|InitializeFunction|InitializeFunctionVariable|InitializeJacobian|InitializeJacobianInvert|InitializeLocalVariables|Input|IntegerConstant|IntegrationVariable|Integrator|InteractionMatrix|Interface|InternalEnergy|IsTangentOperatorSymmetric|IsotropicBehaviour|IsotropicElasticBehaviour|IterMax|JacobianComparisonCriterion|JacobianComparisonCriterium|Law|Library|Link|LocalParameter|LocalVar|LocalVariable|MFront|Material|MaterialLaw|MaterialProperty|MaximalTimeStepScalingFactor|MaximumIncrementValuePerIteration|MaximumNumberOfIterations|Members|MinimalTimeStep|MinimalTimeStepScalingFactor|Model|ModellingHypotheses|ModellingHypothesis|NumericallyComputedJacobianBlocks|OrthotropicBehaviour|Output|Parameter|Parser|PerturbationValueForNumericalJacobianComputation|PostProcessing|PostProcessingVariable|PredictionOperator|Predictor|Private|ProcessNewCorrection|ProcessNewEstimate|Profiling|ProvidesSymmetricTangentOperator|ProvidesTangentOperator|RejectCurrentCorrection|Relocation|RequireStiffnessOperator|RequireStiffnessTensor|RequireThermalExpansionCoefficientTensor|SlidingSystem|SlidingSystems|SlipSystem|SlipSystems|Sources|SpeedOfSound|StateVar|StateVariable|StaticVar|StaticVariable|StrainMeasure|StressErrorNormalisationFactor|StressErrorNormalizationFactor|Swelling|TangentOperator|TangentOperatorBlock|TangentOperatorBlocks|ThermodynamicForce|Theta|UnitSystem|UpdateAuxiliaryStateVariables|UpdateAuxiliaryStateVars|UsableInPurelyImplicitResolution|UseQt'
+  extra_keywords: 'UMATFiniteStrainStrategies'
+
+  mfront_types: 'real|stress|strain|temperature|length|time|derivative_type|inverse_type|result_type|quantity|Stensor|Stensor4|3u|hypothesis|Type|tvector|tmatrix|FrequencyStensor|StressTensor|StressRateStensor|StrainRateStensor|ThermalExpansionCoefficientTensor|Tensor|FrequencyTensor|DeformationGradientTensor|DeformationGradientRateTensor|StrainStensor|StiffnessTensor|StressStensor|st2tost2'
+
+  function_names: 'square|sqrt|cbrt|a?cos|a?sin|a?tan|atan2|ln|exp|pow(er)?|ceil|floor|min(imum)?|max(imum)?|trace|det'
+  more_function_names: 'convertSecondPiolaKirchhoffStressToCauchyStress|computeDeterminantSecondDerivative|computeRightCauchyGreenTensor|getPartialJacobianInvert|computeElasticStiffness|computeGreenLagrangeTensor|sigmaeq|deviator|eval|hillTensor'
+
+  reserved_variables: 'computeTangentOperator_|dt|Dt|F1|deel|deto|feel|N|sig|eel'
+
+  in_namespace: 'Id|tie|exe|cout|cerr|log|computeIsotropicFunctionDerivative|computeIsotropicFunction|computeAlteredElasticStiffness|computeLambda|computeMu'
+
+  # unicode orders of derivative
+  delpower: '[¹²³⁴⁵⁶⁷⁸⁹]'
+contexts:
+  main:
+
+    # --------------
+    # DELIMITERS
+
+    # For easier selection and navigation
+    - match: '\('
+      scope: punctuation.section.parens.begin.mfront
+      push: parens
+    - match: '\)'
+      scope: invalid.illegal.stray-parens-end.mfront
+    - match: '\{'
+      scope: punctuation.section.block.begin.mfront
+      push: braces
+    - match: '\}'
+      scope: invalid.illegal.stray-bracket-end.mfront
+    # - match: '\['
+    #   scope: punctuation.section.brackets.end.mfront
+    # - match: '\]'
+    #   scope: punctuation.section.brackets.end.mfront
+
+    # --------------
+    # KEYWORDS
+
+    # @DSL : detect Domain Specific Language
+    - match: '(@DSL)[ \t]+({{DSL_types}})\b'
+      captures:
+        1: entity.name.class.mfront
+        2: keyword.control.mfront
+
+    # @Description, etc: Display metadata as plain text
+    - match: '(@Description|@Behaviour|@Author|@Date)\s*'
+      captures:
+        1: entity.name.class.mfront
+      push: description
+    # @PhysicalBounds: escape []
+    - match: '(@PhysicalBounds)\s*'
+      captures:
+        1: entity.name.class.mfront
+      push: physical_bounds
+
+    - match: '@({{all_at_keywords}}|{{extra_keywords}})\b'
+      scope: entity.name.class.mfront
+
+
+    # /!\ PROBLEM
+    - match: '\b({{mfront_types}})\b'
+      scope: storage.type.mfront
+      # set: scope:source.c++#global-type
+
+    - match: \b({{function_names}}|{{more_function_names}}|{{in_namespace}})\b
+      scope: variable.function.mfront
+
+    - match: \b({{reserved_variables}})\b
+      scope: variable.language.mfront
+      # scope: entity.name.function.mfront
+
+    - match: '\b(CONSISTENTTANGENTOPERATOR|ELASTIC|SECANTOPERATOR)\b'
+      # ?
+      scope: storage.type.function
+
+    - match: '(⊗|⋅)'
+      scope: keyword.operator.arithmetic.mfront
+    # Operator functions (for overloading?)
+    - match: \bOp(Plus|Minus|Mult|Div)\b
+      scope: keyword.operator.mfront
+
+    - match: '(∂{{delpower}}?).+?(_)(∂{{delpower}}?).+?({{delpower}}?)'
+      captures:
+        1: ✨aesthetics✨.partial-derivative.mfront
+        2: comment
+        3: ✨aesthetics✨.partial-derivative.mfront
+        4: ✨aesthetics✨.partial-derivative.mfront
+      # Add to .sublime-color-theme "rules":
+      # {
+      #     "name": "MFront > Del",
+      #     "scope": "aesthetics.partial-derivative.mfront",
+      #     "foreground": "#a9c4fc",
+      #     "font_style": "italic"
+      # },
+
+    - include: scope:source.c++
+
+
+  # --------------------------------------------------
+  # Other contexts
+
+  parens:
+    - match: \)
+      scope: punctuation.section.parens.end.mfront
+      pop: true
+    - include: main
+  braces:
+    - match: \}
+      scope: punctuation.section.block.end.mfront
+      pop: true
+    - include: main
+
+  description:
+    - meta_scope: text.mfront
+    # Exit if no description block was found
+    - match: ';'
+      pop: true
+    # We immediately enter the description_block
+    - match: '\{'
+      push: description_block
+    # Pop if we just exited the description block
+    - match: '(?<=})'
+      pop: true
+
+  description_block:
+    - meta_scope: text.mfront
+    # Match an opening brace and push another "description" context
+    - match: '\{'
+      push: description_block
+    - match: '\}'
+      pop: true
+
+  physical_bounds:
+    - meta_scope: text.mfront
+    # - match: '\[|\]'
+    #   scope: punctuation.brackets.mfront
+    - match: ':'
+      scope: keyword.mfront
+    - match: in
+      scope: keyword.mfront
+    - match: \* # infinity (unbounded)
+      scope: constant.other.mfront
+    - match: ';'
+      pop: true
